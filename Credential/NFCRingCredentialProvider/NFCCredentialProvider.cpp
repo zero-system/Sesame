@@ -9,6 +9,8 @@
 // PasswordResetProvider implements ICredentialProvider, which is the main
 // interface that logonUI uses to decide which tiles to display.
 
+#include "Windows.h"
+#include "VersionHelpers.h"
 #include <credentialprovider.h>
 #include "NFCCredential.h"
 #include "Reader.h"
@@ -17,7 +19,7 @@
 
 // NFCCredentialProvider ////////////////////////////////////////////////////////
 
-NFCCredentialProvider::NFCCredentialProvider():
+NFCCredentialProvider::NFCCredentialProvider() :
 	_cRef(1)
 {
 	MAZ_LOG(LogMessageType::Information, "NFCCredentialProvider::Constructor");
@@ -47,6 +49,7 @@ void NFCCredentialProvider::OnNFCStatusChanged()
 
 	if (_credentialProviderEvents != NULL)
 	{
+		_defaultProvider = 0;
 		_credentialProviderEvents->CredentialsChanged(_adviseContext);
 	}
 }
@@ -59,7 +62,7 @@ void NFCCredentialProvider::OnNFCStatusChanged()
 HRESULT NFCCredentialProvider::SetUsageScenario(
 	CREDENTIAL_PROVIDER_USAGE_SCENARIO cpus,
 	DWORD dwFlags
-	)
+)
 {
 	UNREFERENCED_PARAMETER(dwFlags);
 	MAZ_LOG(LogMessageType::Information, "NFCCredentialProvider::SetUsageScenario");
@@ -72,7 +75,7 @@ HRESULT NFCCredentialProvider::SetUsageScenario(
 	switch (cpus)
 	{
 	case CPUS_LOGON:
-	case CPUS_UNLOCK_WORKSTATION:    
+	case CPUS_UNLOCK_WORKSTATION:
 		if (!_pCredential && !_reader)
 		{
 			_pCredential = new NFCCredential();
@@ -148,7 +151,7 @@ HRESULT NFCCredentialProvider::SetUsageScenario(
 // pieces of this function.  For information on that, please see the credUI sample.
 STDMETHODIMP NFCCredentialProvider::SetSerialization(
 	const CREDENTIAL_PROVIDER_CREDENTIAL_SERIALIZATION* pcpcs
-	)
+)
 {
 	UNREFERENCED_PARAMETER(pcpcs);
 	MAZ_LOG(LogMessageType::Information, "NFCCredentialProvider::SetSerialization");
@@ -161,7 +164,7 @@ STDMETHODIMP NFCCredentialProvider::SetSerialization(
 HRESULT NFCCredentialProvider::Advise(
 	ICredentialProviderEvents* pcpe,
 	UINT_PTR upAdviseContext
-	)
+)
 {
 	MAZ_LOG(LogMessageType::Information, "NFCCredentialProvider::Advise");
 
@@ -176,7 +179,7 @@ HRESULT NFCCredentialProvider::Advise(
 	}
 	_credentialProviderEvents = pcpe;
 	_credentialProviderEvents->AddRef();
-	
+
 	_adviseContext = upAdviseContext;
 
 	if (_reader != NULL)
@@ -193,7 +196,7 @@ HRESULT NFCCredentialProvider::UnAdvise()
 	//fprintf(filesd,"masher\n");
 	//fclose(filesd);	
 	MAZ_LOG(LogMessageType::Information, "NFCCredentialProvider::UnAdvise");
-
+	_defaultProvider = CREDENTIAL_PROVIDER_NO_DEFAULT;
 	if (_credentialProviderEvents != NULL)
 		_credentialProviderEvents->Release();
 
@@ -213,7 +216,7 @@ HRESULT NFCCredentialProvider::UnAdvise()
 // using the field descriptors.
 HRESULT NFCCredentialProvider::GetFieldDescriptorCount(
 	DWORD* pdwCount
-	)
+)
 {
 	MAZ_LOG(LogMessageType::Information, "NFCCredentialProvider::GetFieldDescriptorCount");
 
@@ -224,10 +227,10 @@ HRESULT NFCCredentialProvider::GetFieldDescriptorCount(
 
 // Gets the field descriptor for a particular field
 HRESULT NFCCredentialProvider::GetFieldDescriptorAt(
-	DWORD dwIndex, 
+	DWORD dwIndex,
 	CREDENTIAL_PROVIDER_FIELD_DESCRIPTOR** ppcpfd
-	)
-{    
+)
+{
 	MAZ_LOG(LogMessageType::Information, "NFCCredentialProvider::GetFieldDescriptorAt");
 
 	HRESULT hr;
@@ -238,7 +241,7 @@ HRESULT NFCCredentialProvider::GetFieldDescriptorAt(
 		hr = FieldDescriptorCoAllocCopy(s_rgCredProvFieldDescriptors[dwIndex], ppcpfd);
 	}
 	else
-	{ 
+	{
 		hr = E_INVALIDARG;
 	}
 
@@ -259,12 +262,15 @@ HRESULT NFCCredentialProvider::GetCredentialCount(
 	DWORD* pdwCount,
 	DWORD* pdwDefault,
 	BOOL* pbAutoLogonWithDefault
-	)
+)
 {
 	MAZ_LOG(LogMessageType::Information, "NFCCredentialProvider::GetCredentialCount");
 
 	*pdwCount = 1;
-	*pdwDefault = 0;
+	if (IsWindowsVersionOrGreater(10, 0, 0))
+		*pdwDefault = _defaultProvider;
+	else
+		*pdwDefault = 0;
 	*pbAutoLogonWithDefault = FALSE;
 	return S_OK;
 }
@@ -272,15 +278,15 @@ HRESULT NFCCredentialProvider::GetCredentialCount(
 // Returns the credential at the index specified by dwIndex. This function is called by logonUI to enumerate
 // the tiles.
 HRESULT NFCCredentialProvider::GetCredentialAt(
-	DWORD dwIndex, 
+	DWORD dwIndex,
 	ICredentialProviderCredential** ppcpc
-	)
+)
 {
 	MAZ_LOG(LogMessageType::Information, "NFCCredentialProvider::GetCredentialAt");
 	HRESULT hr;
 
 	// Validate parameters.
-	if((dwIndex == 0) && ppcpc)
+	if ((dwIndex == 0) && ppcpc)
 	{
 		hr = _pCredential->QueryInterface(IID_ICredentialProviderCredential, reinterpret_cast<void**>(ppcpc));
 	}

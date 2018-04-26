@@ -1,0 +1,266 @@
+﻿<view:CustomControl x:Class="NFCRing.UI.View.Views.LoginControlView"
+                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+                    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                    xmlns:viewModels="clr-namespace:NFCRing.UI.ViewModel.ViewModels;assembly=NFCRing.UI.ViewModel"
+                    xmlns:view="clr-namespace:NFCRing.UI.View"
+                    xmlns:controls="clr-namespace:NFCRing.UI.View.Controls"
+                    mc:Ignorable="d" 
+                    d:DesignHeight="300" d:DesignWidth="300"
+                    d:DataContext="{d:DesignInstance viewModels:LoginControlViewModel}">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- content -->
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="200"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- items -->
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- add new -->
+                <Border Margin="{StaticResource ContentMarginLight}" IsEnabled="{Binding AllowAdd}">
+                    <TextBlock VerticalAlignment="Center">
+                        <Hyperlink Command="{Binding AddCommand}" TextDecorations="{x:Null}" Foreground="Black">
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="/NFCRing.UI.View;component/Assets/Plus_36.png"
+                                       Height="16"
+                                       Width="16"/>
+                                <TextBlock Text="Add new NFC Ring"
+                                           VerticalAlignment="Center"
+                                           FontSize="{StaticResource SmallFontSize}"
+                                           Margin="{StaticResource ContentMarginLightLeft}"/>
+                            </StackPanel>
+                        </Hyperlink>
+                    </TextBlock>
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Opacity" Value="0.5" />
+                                    <Setter Property="Cursor" Value="Hand" />
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter Property="Opacity" Value="0.5" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                </Border>
+
+                <!-- manage -->
+                <Grid Grid.Row="1" Margin="{StaticResource ContentMarginLightRight}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- marker -->
+                    <Rectangle Width="6"
+                               Height="24"
+                               Fill="{StaticResource MarkerBrush}"/>
+
+                    <!-- icon -->
+                    <Image Grid.Column="1"
+                           Source="/NFCRing.UI.View;component/Assets/DoubleCircle_36.png"
+                           Height="16"
+                           Margin="{StaticResource ContentMarginSmallLeftRight}"/>
+
+                    <!-- name -->
+                    <TextBlock Grid.Column="2"
+                               Text="Manage NFC Rings"
+                               TextTrimming="WordEllipsis"
+                               VerticalAlignment="Center"
+                               FontSize="{StaticResource SmallFontSize}"/>
+                </Grid>
+
+
+                <!-- About -->
+                <Grid Grid.Row="3" Margin="{StaticResource ContentMarginLightRight}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <!-- name -->
+                    <TextBlock VerticalAlignment="Center">
+                        <Hyperlink Command="{Binding AboutCommand}" TextDecorations="{x:Null}" Foreground="Black">
+                            <StackPanel Orientation="Horizontal">
+
+                               <!-- icon -->
+                    <Image 
+                           Source="/NFCRing.UI.View;component/Assets/abouticon_32.png"
+                           Height="16" Width="16"
+                           Margin="{StaticResource ContentMarginSmallLeftRight}"/>
+                                <TextBlock Text="About"
+                                           HorizontalAlignment="Left"
+                                           VerticalAlignment="Center"
+                                           FontSize="{StaticResource SmallFontSize}"
+                                           />
+                            </StackPanel>
+                        </Hyperlink>
+                    </TextBlock>
+                </Grid>
+            </Grid>
+
+            <!-- splitter -->
+            <Border Grid.Column="1" VerticalAlignment="Stretch" Width="2" Background="{StaticResource BorderBrush}"/>
+
+            <!-- selected item data -->
+            <ListBox Grid.Column="2"
+                     x:Name="ItemsListBox"
+                     ItemsSource="{Binding Items}"
+                     Margin="{StaticResource ContentMarginLeft}"
+                     BorderThickness="0">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Style.Setters>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate>
+                                        <Grid d:DataContext="{d:DesignInstance viewModels:RingItemViewModel}" Margin="0,10,0,0" Focusable="False">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="*"/>
+                                            </Grid.RowDefinitions>
+
+                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
+
+                                                <!-- image -->
+                                                <ContentControl>
+                                                    <ContentControl.Template>
+                                                        <ControlTemplate>
+                                                            <Border x:Name="ImageBorder" Margin="0,5,10,0" BorderBrush="Blue">
+                                                                <Image Height="32" Width="32">
+                                                                    <Image.Style>
+                                                                        <Style TargetType="{x:Type Image}">
+                                                                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                                                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                                                            <Setter Property="Source" Value="{Binding Image}" />
+                                                                            <Style.Triggers>
+                                                                                <DataTrigger Binding="{Binding Image}" Value="{x:Null}">
+                                                                                    <Setter Property="Source" Value="/NFCRing.UI.View;component/Assets/DoubleCircle_36.png" />
+                                                                                </DataTrigger>
+                                                                            </Style.Triggers>
+                                                                        </Style>
+                                                                    </Image.Style>
+                                                                    <Image.InputBindings>
+                                                                        <MouseBinding MouseAction="LeftClick"
+                                                                                      Command="{Binding ElementName=ItemsListBox, Path=DataContext.SelectImageCommand}"
+                                                                                      CommandParameter="{Binding Token}"/>
+                                                                    </Image.InputBindings>
+                                                                </Image>
+                                                            </Border>
+
+                                                            <ControlTemplate.Triggers>
+                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                    <Setter TargetName="ImageBorder" Property="Cursor" Value="Hand" />
+                                                                </Trigger>
+                                                                <EventTrigger SourceName="ImageBorder" RoutedEvent="Border.MouseEnter">
+                                                                    <BeginStoryboard>
+                                                                        <Storyboard>
+                                                                            <DoubleAnimation Duration="0:0:0.4" Storyboard.TargetName="ImageBorder" Storyboard.TargetProperty="Opacity" To="0.5" />
+                                                                        </Storyboard>
+                                                                    </BeginStoryboard>
+                                                                </EventTrigger>
+                                                                <EventTrigger SourceName="ImageBorder" RoutedEvent="Border.MouseLeave">
+                                                                    <BeginStoryboard>
+                                                                        <Storyboard>
+                                                                            <DoubleAnimation Duration="0:0:0.4" Storyboard.TargetName="ImageBorder" Storyboard.TargetProperty="Opacity" To="1" />
+                                                                        </Storyboard>
+                                                                    </BeginStoryboard>
+                                                                </EventTrigger>
+                                                            </ControlTemplate.Triggers>
+                                                        </ControlTemplate>
+                                                    </ContentControl.Template>
+                                                </ContentControl>
+
+                                                <!-- name -->
+                                                <controls:SkypeTextEditControl Text="{Binding Name, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                                               OkCommand="{Binding ElementName=ItemsListBox, Path=DataContext.SaveNameCommand}"
+                                                                               CancelCommand="{Binding ElementName=ItemsListBox, Path=DataContext.CancelEditNameCommand}"
+                                                                               CommandParameter="{Binding Token}"/>
+                                            </StackPanel>
+
+                                            <!-- token -->
+                                            <StackPanel Grid.Row="1"
+                                                        Margin="{StaticResource ContentMarginLightTop}"
+                                                        Orientation="Horizontal"
+                                                        Visibility="Collapsed">
+                                                <TextBlock Text="Token: " FontSize="{StaticResource SmallFontSize}"/>
+                                                <TextBlock Text="{Binding Token}" FontSize="{StaticResource SmallFontSize}"/>
+                                            </StackPanel>
+
+                                            <!-- remove button -->
+                                            <Button Grid.Row="2"
+                                                    Content="Remove"
+                                                    Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}, Path=DataContext.RemoveCommand}"
+                                                    CommandParameter="{Binding}"
+                                                    HorizontalAlignment="Left"
+                                                    Margin="{StaticResource ContentMarginLightTop}"
+                                                    Style="{StaticResource ButtonStyle}"/>
+                                        </Grid>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style.Setters>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+            </ListBox>
+        </Grid>
+
+        <!-- image -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="250"></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+
+            </Grid.ColumnDefinitions>
+            <Image Grid.Row="1"
+               Source="/NFCRing.UI.View;component/Assets/nfcring_logo_12.png"
+               Height="12"
+               HorizontalAlignment="Left"
+               Margin="{StaticResource ContentMarginLight}"/>
+            <DockPanel Grid.Column="1" LastChildFill="False" VerticalAlignment="Center" Margin="0,0,10,0" Visibility="{Binding IsDeviceNotAvailable,Converter={StaticResource BooleanToVisibilityConverter}}">
+                <Button x:Name="buttonConnect" Background="Transparent" BorderBrush="Transparent" DockPanel.Dock="Right" Command="{Binding RefreshConnectedDevicesCommand}" Style="{StaticResource ConnectToolbarButtonStyle}">
+                    <Viewbox>
+                        <ContentControl />
+                    </Viewbox>
+                </Button>
+                <TextBlock Text="No Compatible NFC Reader detected." DockPanel.Dock="Right"
+                               FontSize="{StaticResource SmallFontSize}" 
+                               VerticalAlignment="Center" 
+                               HorizontalAlignment="Right" 
+                               Foreground="Red"></TextBlock>
+            </DockPanel>
+
+            <DockPanel Grid.Column="1" LastChildFill="False" VerticalAlignment="Center" Margin="0,0,10,0" Visibility="{Binding IsDeviceAvailable,Converter={StaticResource BooleanToVisibilityConverter}}">
+                <ComboBox DockPanel.Dock="Right" SelectedIndex="0" IsSynchronizedWithCurrentItem="True" Width="Auto" VerticalAlignment="Center" ItemsSource="{Binding DevicesList}" DisplayMemberPath="DeviceName">
+                    
+                </ComboBox>
+                <TextBlock Text="Available NFC Readers:" DockPanel.Dock="Right"
+                               FontSize="{StaticResource SmallFontSize}" 
+                               VerticalAlignment="Center" 
+                               HorizontalAlignment="Right"></TextBlock>
+            </DockPanel>
+
+        </Grid>
+    </Grid>
+</view:CustomControl>
